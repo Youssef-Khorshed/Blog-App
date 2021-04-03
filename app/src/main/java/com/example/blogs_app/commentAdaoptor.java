@@ -126,7 +126,7 @@ public class commentAdaoptor extends RecyclerView.Adapter<commentAdaoptor.ViewHo
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
-            userimgcomment = itemView.findViewById(R.id.userimg_editcomment1);
+            userimgcomment = itemView.findViewById(R.id.userimg_userprofile);
             usernamecomment = itemView.findViewById(R.id.username_edit_comment1);
             comment = itemView.findViewById(R.id.edit_comment_text1);
             comment_date = itemView.findViewById(R.id.comment_date1);

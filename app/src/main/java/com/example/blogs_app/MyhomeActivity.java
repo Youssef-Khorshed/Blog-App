@@ -10,17 +10,20 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.blogs_app.ui.logout.user_searchAdaptor;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
@@ -33,20 +36,24 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MyhomeActivity extends AppCompatActivity {
-    static int req = 1, img_code = 2;
+public class MyhomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    static int req = 1, img_code = 2, fragemnt_number = 0;
     static Uri img_uri = null;
     FirebaseAuth auth;
     FirebaseUser user;
@@ -54,6 +61,9 @@ public class MyhomeActivity extends AppCompatActivity {
     ImageView user_message_img, user_message_img2 = null, user_message_send;
     TextView user_message_title, user_message_description;
     ProgressBar user_message_progressbar;
+    DrawerLayout drawer;
+    user_searchAdaptor searchAdaptor;
+
 
 
     @Override
@@ -71,21 +81,26 @@ public class MyhomeActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                set_message.show();
-            }
-        });
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this::onOptionsItemSelected);
+        navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         update();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.framer, new home()).commit();
+            navigationView.setCheckedItem(R.id.Home);
+            fragemnt_number = 1;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
+        super.onBackPressed();
     }
 
     private void message() {
@@ -124,7 +139,7 @@ public class MyhomeActivity extends AppCompatActivity {
                             referenc.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    String x= user.getPhotoUrl().toString();
+                                    String userimg = user.getPhotoUrl().toString();
                                     Date currenttime = Calendar.getInstance().getTime();
                                     String post_date = DateFormat.getInstance().format(currenttime);
                                     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -132,15 +147,16 @@ public class MyhomeActivity extends AppCompatActivity {
                                     //     String key = databaseReference.getKey();
                                     //     data.setPost_key(key);
 
-                                    databaseReference.setValue(new message_data(user_message_title.getText().toString()
+                                    databaseReference.setValue(new message_data(
+                                            user_message_title.getText().toString()
                                             , user_message_description.getText().toString()
                                             , user.getDisplayName()
-                                            ,user.getUid()
+                                            , user.getUid()
                                             , uri.toString()
-                                            ,x
-                                            ,databaseReference.getKey()
-                                            ,post_date
-                                            ,Integer.toString( R.drawable.like)
+                                            , userimg
+                                            , user.getEmail()
+                                            , databaseReference.getKey()
+                                            , post_date
 
 
                                     )).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -238,31 +254,22 @@ public class MyhomeActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.myhome, menu);
+
         return true;
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.Logout:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, LoginForm.class));
-                finish();
-                return true;
-            case R.id.Profile:
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, new profile()).commit();
-                return true;
-            case R.id.Sitting:
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, new sitting()).commit();
-                return true;
-            case R.id.Home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, new home()).commit();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_settings && fragemnt_number == 1) {
+            set_message.show();
+            return true;
         }
+        else {
 
+            return false;
+        }
     }
+
 
     void update() {
 
@@ -276,14 +283,13 @@ public class MyhomeActivity extends AppCompatActivity {
         Glide.with(this).load(user.getPhotoUrl()).into(imageView);
 
 
-
     }
 
     void Push_message_data(message_data data) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference("message").push();
-   //     String key = databaseReference.getKey();
-   //     data.setPost_key(key);
+        //     String key = databaseReference.getKey();
+        //     data.setPost_key(key);
 
         databaseReference.setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -297,5 +303,33 @@ public class MyhomeActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.Logout:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, LoginForm.class));
+
+                finish();
+                break;
+            case R.id.Profile:
+                fragemnt_number = 2;
+                getSupportFragmentManager().beginTransaction().replace(R.id.framer, new profile()).commit();
+                break;
+            case R.id.Sitting:
+                fragemnt_number = 3;
+                getSupportFragmentManager().beginTransaction().replace(R.id.framer, new sitting()).commit();
+                break;
+            case R.id.Home:
+                fragemnt_number = 1;
+                getSupportFragmentManager().beginTransaction().replace(R.id.framer, new home()).commit();
+                break;
+
+        }
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
 
 }

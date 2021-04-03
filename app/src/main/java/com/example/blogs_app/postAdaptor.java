@@ -1,10 +1,11 @@
 package com.example.blogs_app;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,15 +23,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class postAdaptor extends RecyclerView.Adapter<postAdaptor.ViewHolder> {
+public class postAdaptor extends RecyclerView.Adapter<postAdaptor.ViewHolder> implements Filterable {
     Context context;
     ArrayList<message_data> post;
+    ArrayList<message_data> itemssAll;
     private OnItemClickListener mlistenerl;
-    boolean test_like = false;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     FirebaseAuth auth;
-    FirebaseUser user;
     private boolean like_tst = false;
 
     public interface OnItemClickListener {
@@ -46,6 +46,7 @@ public class postAdaptor extends RecyclerView.Adapter<postAdaptor.ViewHolder> {
     public postAdaptor(Context context, ArrayList<com.example.blogs_app.message_data> post) {
         this.context = context;
         this.post = post;
+        this.itemssAll = new ArrayList<>(post);
     }
 
     @NonNull
@@ -113,23 +114,25 @@ public class postAdaptor extends RecyclerView.Adapter<postAdaptor.ViewHolder> {
         FirebaseAuth auth;
 
         public void get_like(String postkey) {
-databaseReference.addValueEventListener(new ValueEventListener() {
-    @Override
-    public void onDataChange(@NonNull DataSnapshot snapshot) {
-        if (snapshot.child(postkey).hasChild(auth.getCurrentUser().getUid())) {
-            like_btn.setImageResource(R.drawable.liked);
-        } else {
-            like_btn.setImageResource(R.drawable.like);
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.child(postkey).hasChild(auth.getCurrentUser().getUid())) {
+                        like_btn.setImageResource(R.drawable.ic_favorite);
+                    } else {
+                        like_btn.setImageResource(R.drawable.ic_not_favourite);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
         }
-    }
 
-    @Override
-    public void onCancelled(@NonNull DatabaseError error) {
 
-    }
-});
-
-        }
 
         public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
             super(itemView);
@@ -137,7 +140,7 @@ databaseReference.addValueEventListener(new ValueEventListener() {
             post_desc = itemView.findViewById(R.id.post_desc);
             post_img = itemView.findViewById(R.id.post_img);
             textView = itemView.findViewById(R.id.username_post_com);
-            user_view = itemView.findViewById(R.id.userimg_editcomment1);
+            user_view = itemView.findViewById(R.id.userimg_userprofile);
             post_date = itemView.findViewById(R.id.post_date);
             message_btn = itemView.findViewById(R.id.message_btn);
             like_btn = itemView.findViewById(R.id.like_btn1);
@@ -184,4 +187,44 @@ databaseReference.addValueEventListener(new ValueEventListener() {
 
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    Filter filter=new Filter() {
+        @Override
+        // background thread
+        protected FilterResults performFiltering(CharSequence keyword)
+        {
+            ArrayList<message_data> filtereddata=new ArrayList<>();
+
+            if(keyword.toString().isEmpty())
+                filtereddata.addAll(itemssAll);
+            else
+            {
+                for(message_data obj : itemssAll)
+                {
+                    if(obj.getUser_name().toLowerCase().contains(keyword.toString().toLowerCase()))
+                        filtereddata.add(obj);
+                }
+            }
+
+            FilterResults results=new FilterResults();
+            results.values=filtereddata;
+            return results;
+        }
+
+        @Override  // main UI thread
+        protected void publishResults(CharSequence constraint, FilterResults results)
+        {
+            post.clear();
+            post.addAll((ArrayList<message_data>)results.values);
+            notifyDataSetChanged();
+        }
+    };
+
+
+
 }

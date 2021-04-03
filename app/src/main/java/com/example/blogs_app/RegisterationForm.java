@@ -76,7 +76,6 @@ public class RegisterationForm extends AppCompatActivity {
                 } else {
                     Create_User_Account(Email.getText().toString(), Name.getText().toString(), Password.getText().toString());
                     cpp.registerCarrierNumberEditText(Phone);
-                    Push_data(new data(Name.getText().toString(), Password.getText().toString(), cpp.getFullNumberWithPlus().replace(" ", ""), Email.getText().toString()));
                 }
 
 
@@ -103,7 +102,7 @@ public class RegisterationForm extends AppCompatActivity {
     }
 
     void image_action() {
-        imageView = findViewById(R.id.userimg_editcomment1);
+        imageView = findViewById(R.id.userimg_userprofile);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,6 +152,7 @@ public class RegisterationForm extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
+                                    Push_data(new data(Name.getText().toString(), Password.getText().toString(), cpp.getFullNumberWithPlus().replace(" ", ""), Email.getText().toString(),currentUser.getPhotoUrl().toString(),currentUser.getUid()));
                                     go_to_next_page();
                                       Toast.makeText(getApplicationContext(), "register comleted", Toast.LENGTH_SHORT).show();
                                 } else {

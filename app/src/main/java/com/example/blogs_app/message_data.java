@@ -5,19 +5,24 @@ import android.net.Uri;
 
 public class message_data {
 
-    private String title,description,user_name,user_id,post_image,user_image;
-    private  String post_key, date,like_state;
+    private String title,description,user_name,user_id,post_image,user_image,email;
+    private  String post_key, date;
 
-    public message_data(String title, String description, String user_name, String user_id, String post_image, String user_image, String post_key, String date, String like_state) {
+    public message_data()
+    {
+
+    }
+
+    public message_data(String title, String description, String user_name, String user_id, String post_image, String user_image, String email, String post_key, String date) {
         this.title = title;
         this.description = description;
         this.user_name = user_name;
         this.user_id = user_id;
         this.post_image = post_image;
         this.user_image = user_image;
+        this.email = email;
         this.post_key = post_key;
         this.date = date;
-        this.like_state = like_state;
     }
 
     public String getTitle() {
@@ -68,6 +73,14 @@ public class message_data {
         this.user_image = user_image;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPost_key() {
         return post_key;
     }
@@ -82,13 +95,5 @@ public class message_data {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public String getLike_state() {
-        return like_state;
-    }
-
-    public void setLike_state(String like_state) {
-        this.like_state = like_state;
     }
 }

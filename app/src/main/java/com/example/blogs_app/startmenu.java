@@ -23,7 +23,7 @@ ImageView imageView;
             @Override
             public void run() {
                 try {
-                    Thread.sleep(7000);
+                    Thread.sleep(6000);
                     startActivity(new Intent(startmenu.this, LoginForm.class));
                     finish();
                 } catch (InterruptedException e) {

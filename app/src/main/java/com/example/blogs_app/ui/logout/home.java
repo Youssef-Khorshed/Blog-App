@@ -3,6 +3,9 @@ package com.example.blogs_app.ui.logout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -12,14 +15,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.blogs_app.R;
 import com.example.blogs_app.commnet_Activity;
+import com.example.blogs_app.data;
 import com.example.blogs_app.message_data;
+import com.example.blogs_app.sharedviewmode;
 import com.example.blogs_app.postAdaptor;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,27 +40,27 @@ public class home extends Fragment {
     RecyclerView recyclerView;
     postAdaptor postAdaptor;
     ArrayList<message_data> posts;
+    ArrayList<String> fiterato = new ArrayList<>();
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     ImageView Like_view;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-    }
+
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference("message");
         try {
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     posts = new ArrayList<>();
                     for (DataSnapshot d : snapshot.getChildren()) {
-                        posts.add(new message_data(d.child("title").getValue().toString(), d.child("description").getValue().toString(), d.child("user_name").getValue().toString(), d.child("user_id").getValue().toString(), d.child("post_image").getValue().toString(), d.child("user_image").getValue().toString(), d.child("post_key").getValue().toString(), d.child("date").getValue().toString(), d.child("like_state").getValue().toString()));
-
+                        message_data messageData = d.getValue(message_data.class);
+                        posts.add(messageData);
 
                     }
                     postAdaptor = new postAdaptor(getActivity(), posts);
@@ -63,10 +71,8 @@ public class home extends Fragment {
                             Edit(position);
                         }
 
-
-
-
                     });
+
 
 
                 }
@@ -78,22 +84,23 @@ public class home extends Fragment {
                 }
             });
 
-        } catch (Exception e) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
 
+        } catch (Exception e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.my_home_page, container, false);
         recyclerView = v.findViewById(R.id.recycler);
         Like_view = v.findViewById(R.id.like_btn1);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference("message");
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
 
         return v;
     }
@@ -113,41 +120,26 @@ public class home extends Fragment {
         getContext().startActivity(intent);
 
     }
-/*
-    public void Like(int position) {
-        databaseReference = firebaseDatabase.getReference("message");
-        if ((Integer.toString(R.drawable.like).compareTo(posts.get(position).getLike_state()) == 0)) {
-            databaseReference.child(posts.get(position).getPost_key())
-                    .setValue(new message_data(posts.get(position).getTitle()
-                            , posts.get(position).getDescription()
-                            , posts.get(position).getUser_name()
-                            , posts.get(position).getUser_id()
-                            , posts.get(position).getPost_image()
-                            , posts.get(position).getUser_image()
-                            , posts.get(position).getPost_key()
-                            , posts.get(position).getDate()
-                            , Integer.toString(R.drawable.liked)
-                    ));
-            posts.get(position).setLike_state(Integer.toString(R.drawable.liked));
-
-        } else {
-            databaseReference.child(posts.get(position).getPost_key())
-                    .setValue(new message_data(posts.get(position).getTitle()
-                            , posts.get(position).getDescription()
-                            , posts.get(position).getUser_name()
-                            , posts.get(position).getUser_id()
-                            , posts.get(position).getPost_image()
-                            , posts.get(position).getUser_image()
-                            , posts.get(position).getPost_key()
-                            , posts.get(position).getDate()
-                            , Integer.toString(R.drawable.like)
-                    ));
-            posts.get(position).setLike_state(Integer.toString(R.drawable.like));
 
 
-        }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) item.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                postAdaptor.getFilter().filter(newText);
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu,inflater);
     }
-    */
+
 
 }

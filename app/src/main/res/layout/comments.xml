@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/userimg_editcomment1"
+        android:id="@+id/userimg_userprofile"
         android:layout_width="57dp"
         android:layout_height="56dp"
         android:layout_marginStart="30dp"
@@ -30,7 +30,7 @@
         android:textColor="#000000"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userimg_editcomment1" />
+        app:layout_constraintTop_toBottomOf="@+id/userimg_userprofile" />
 
     <TextView
         android:id="@+id/edit_comment_text1"
@@ -42,7 +42,7 @@
         android:background="@drawable/text_style2"
         android:text="TextView"
         android:textColor="#040404"
-        app:layout_constraintStart_toEndOf="@+id/userimg_editcomment1"
+        app:layout_constraintStart_toEndOf="@+id/userimg_userprofile"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

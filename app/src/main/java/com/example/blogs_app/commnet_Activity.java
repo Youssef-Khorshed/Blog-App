@@ -28,7 +28,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 
 public class commnet_Activity extends AppCompatActivity {
     String postkey;
@@ -54,7 +53,7 @@ public class commnet_Activity extends AppCompatActivity {
         com_img = findViewById(R.id.com_img);
         com_username = findViewById(R.id.com_username);
         date_post_com = findViewById(R.id.date_post_com);
-        userimg_post_com = findViewById(R.id.userimg_editcomment1);
+        userimg_post_com = findViewById(R.id.userimg_userprofile);
         send_post_com = findViewById(R.id.send_post_com);
         img_post_com = findViewById(R.id.img_post_com);
 
@@ -123,6 +122,7 @@ public class commnet_Activity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     commnet_detailsArrayList = new ArrayList<>();
                     for (DataSnapshot d : snapshot.getChildren()) {
+                        /*
                         commnet_detailsArrayList.add(new commnet_details(
                                 d.child("comment").getValue().toString()
                                 , d.child("posyt_id").getValue().toString()
@@ -133,6 +133,9 @@ public class commnet_Activity extends AppCompatActivity {
                                 , d.child("user_img").getValue().toString()
                         ));
 
+                         */
+                        commnet_details commnetDetails = d.getValue(commnet_details.class);
+                        commnet_detailsArrayList.add(commnetDetails);
                     }
                     adaoptor = new commentAdaoptor(commnet_Activity.this, commnet_detailsArrayList);
                     recyclerView.setAdapter(adaoptor);
@@ -181,7 +184,7 @@ public class commnet_Activity extends AppCompatActivity {
             dialog.setContentView(R.layout.edit_delete_comments);
             dialog.getWindow().getAttributes().gravity = Gravity.TOP;
 
-            ImageView userimg_editcomment = dialog.findViewById(R.id.userimg_editcomment1);
+            ImageView userimg_editcomment = dialog.findViewById(R.id.userimg_userprofile);
             ImageView edit_comment_btn = dialog.findViewById(R.id.edit_comment_btn);
             TextView edit_comment_text = dialog.findViewById(R.id.edit_comment_text2);
             TextView username_edit_comment = dialog.findViewById(R.id.username_edit_comment1);

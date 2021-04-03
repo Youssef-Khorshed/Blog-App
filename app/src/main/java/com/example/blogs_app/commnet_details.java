@@ -3,6 +3,10 @@ package com.example.blogs_app;
 public class commnet_details {
     private String comment,posyt_id,comment_id,commnet_date,user_name,user_id,user_img;
 
+    public  commnet_details()
+    {
+
+    }
     public commnet_details(String comment, String posyt_id, String comment_id, String commnet_date, String user_name, String user_id, String user_img) {
         this.comment = comment;
         this.posyt_id = posyt_id;
