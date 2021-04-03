@@ -52,7 +52,7 @@ import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MyhomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MyhomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,profile.Senddata    {
     static int req = 1, img_code = 2, fragemnt_number = 0;
     static Uri img_uri = null;
     FirebaseAuth auth;
@@ -310,7 +310,6 @@ public class MyhomeActivity extends AppCompatActivity implements NavigationView.
             case R.id.Logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(this, LoginForm.class));
-
                 finish();
                 break;
             case R.id.Profile:
@@ -332,4 +331,9 @@ public class MyhomeActivity extends AppCompatActivity implements NavigationView.
     }
 
 
+    @Override
+    public void send(String data) {
+        home.str = data;
+
+    }
 }

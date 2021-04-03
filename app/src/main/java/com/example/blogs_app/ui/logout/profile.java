@@ -1,5 +1,7 @@
 package com.example.blogs_app.ui.logout;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,18 +34,17 @@ import java.util.ArrayList;
 public class profile extends Fragment {
     RecyclerView recyclerView;
     user_searchAdaptor postAdaptor;
-    ArrayList<data> userinfo =  new ArrayList<>();
-    ArrayList<String> users =  new ArrayList<>();
+    ArrayList<data> userinfo = new ArrayList<>();
+    ArrayList<String> users = new ArrayList<>();
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
+    Senddata senddata;
+    ImageView imageView;
 
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
+    public interface Senddata {
+        public void send(String data);
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -61,8 +63,12 @@ public class profile extends Fragment {
                 recyclerView.setAdapter(postAdaptor);
                 postAdaptor.setOnClickListener(new user_searchAdaptor.OnItemClickListener() {
                     @Override
-                    public void Edit_item(int position) {
+                    public void Edit_item(int position, boolean b) {
+                        if (!b) {
+                          //  Toast.makeText(getContext(), userinfo.get(position).getName() + " follwed", Toast.LENGTH_SHORT).show();
+                            senddata.send(userinfo.get(position).getUserid());
 
+                        }
 
                     }
                 });
@@ -79,18 +85,23 @@ public class profile extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
     }
 
-    @Nullable
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.profile, container, false);
         recyclerView = v.findViewById(R.id.profile_recycleview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        imageView = v.findViewById(R.id.follow_user);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("user_info");
 
@@ -115,8 +126,23 @@ public class profile extends Fragment {
                 return false;
             }
         });
-        super.onCreateOptionsMenu(menu,inflater);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Senddata) {
+            senddata = (Senddata) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implemented..!!!");
+        }
 
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        senddata = null;
+    }
 }

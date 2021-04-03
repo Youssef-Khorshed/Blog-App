@@ -39,11 +39,12 @@ public class user_searchAdaptor extends RecyclerView.Adapter<user_searchAdaptor.
     FirebaseDatabase firebaseDatabase;
     private boolean test_follw = false;
     private OnItemClickListener mlistener;
+    boolean tst  = false;
 
 
     public interface OnItemClickListener
     {
-        void Edit_item(int position);
+        void Edit_item(int position, boolean b);
     }
     public  void  setOnClickListener(OnItemClickListener listener)
     {
@@ -73,36 +74,9 @@ public class user_searchAdaptor extends RecyclerView.Adapter<user_searchAdaptor.
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         reference = firebaseDatabase.getReference().child("follwers");
-        holder.follow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                test_follw = true;
-
-                    reference.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (test_follw) {
-                                if (snapshot.child(user.getUid()).hasChild(user_info.get(position).getUserid())) {
-                                    reference.child(user.getUid()).child(user_info.get(position).getUserid()).removeValue();
-                                    test_follw = false;
-                                } else {
-                                    reference.child(user.getUid()).child(user_info.get(position).getUserid()).setValue(user_info.get(position).getUserid());
-
-                                    test_follw = false;
-                                }
-                            }
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
 
 
-            }
-        });
+
 
     }
 
@@ -127,8 +101,10 @@ public class user_searchAdaptor extends RecyclerView.Adapter<user_searchAdaptor.
                     if (snapshot.child(auth.getCurrentUser().getUid()).hasChild(userid)) {
                         follow.setImageResource(R.drawable.ic_favorite);
 
+
                     } else {
                         follow.setImageResource(R.drawable.ic_not_favourite);
+
                     }
 
                 }
@@ -150,16 +126,41 @@ public class user_searchAdaptor extends RecyclerView.Adapter<user_searchAdaptor.
             auth = FirebaseAuth.getInstance();
             databaseReference = firebaseDatabase.getReference().child("follwers");
             databaseReference.keepSynced(true);
-            username_userprofile.setOnClickListener(new View.OnClickListener() {
+            follow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    test_follw = true;
+                    int position = getAdapterPosition();
+                    reference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (test_follw) {
+                                if (snapshot.child(user.getUid()).hasChild(user_info.get(position).getUserid())) {
+                                    reference.child(user.getUid()).child(user_info.get(position).getUserid()).removeValue();
+                                    tst = false;
+                                    test_follw = false;
+                                } else {
+
+                                    reference.child(user.getUid()).child(user_info.get(position).getUserid()).setValue(user_info.get(position).getUserid());
+                                    tst = true;
+                                    test_follw = false;
+                                }
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
 
                     if(listener != null)
                     {
-                        int postion = getAdapterPosition();
-                        if(postion != RecyclerView.NO_POSITION)
+
+                        if(position != RecyclerView.NO_POSITION)
                         {
-                            listener.Edit_item(postion);
+                            listener.Edit_item(position, tst);
                         }
                     }
                 }

@@ -44,8 +44,7 @@ public class home extends Fragment {
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     ImageView Like_view;
-
-
+    public static String str = "";
 
 
     @Override
@@ -58,11 +57,14 @@ public class home extends Fragment {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     posts = new ArrayList<>();
+
                     for (DataSnapshot d : snapshot.getChildren()) {
                         message_data messageData = d.getValue(message_data.class);
                         posts.add(messageData);
 
                     }
+                   Toast.makeText(getContext(), "hi "+str, Toast.LENGTH_SHORT).show();
+
                     postAdaptor = new postAdaptor(getActivity(), posts);
                     recyclerView.setAdapter(postAdaptor);
                     postAdaptor.setOnItemClickListener(new postAdaptor.OnItemClickListener() {
@@ -72,7 +74,6 @@ public class home extends Fragment {
                         }
 
                     });
-
 
 
                 }
@@ -99,7 +100,6 @@ public class home extends Fragment {
         recyclerView = v.findViewById(R.id.recycler);
         Like_view = v.findViewById(R.id.like_btn1);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
 
 
         return v;
@@ -138,8 +138,9 @@ public class home extends Fragment {
                 return false;
             }
         });
-        super.onCreateOptionsMenu(menu,inflater);
+        super.onCreateOptionsMenu(menu, inflater);
     }
+
 
 
 }

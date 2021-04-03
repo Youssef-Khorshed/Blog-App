@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.blogs_app.R;
 
-public class sitting extends Fragment {
+public class sitting extends Fragment   {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
